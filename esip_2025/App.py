@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import os
+from pathlib import Path
 
 st.set_page_config(page_title="Indicadores ESIP 2025", layout="wide", page_icon="bar_chart")
 
@@ -11,15 +12,17 @@ with header_left:
     st.title("Indicadores ESIP 2025")
     st.markdown("### Resumen Cualitativo | Enero → Septiembre")
 with header_right:
-    if os.path.exists("logo_esip_clear.png"):
-        st.image("logo_esip_clear.png", use_container_width=True)
+    BASE_DIR = Path(__file__).parent
+    logo_path = BASE_DIR / "logo_esip_clear.png"
+    if logo_path.exists():
+        st.image(str(logo_path), use_container_width=True)
     else:
         st.empty()
 
 # Documentación (si existe Readme.md)
 doc_text = None
-readme_path = "Readme.md"
-if os.path.exists(readme_path):
+readme_path = BASE_DIR / "Readme.md"
+if readme_path.exists():
     try:
         with open(readme_path, "r", encoding="utf-8") as f:
             doc_text = f.read()
@@ -29,21 +32,33 @@ if doc_text:
     with st.expander("Cómo leer este tablero (Documentación)"):
         st.markdown(doc_text, unsafe_allow_html=True)
 
-# Archivos requeridos
-REQUIRED = ["Ind_%.csv", "Ind_n.csv", "tipo_indicadores.csv"]
-missing = [f for f in REQUIRED if not os.path.exists(f)]
+# Localización y carga robusta de archivos desde la carpeta del script
+def load_csv(path: str):
+    return pd.read_csv(path, sep=None, engine="python", encoding="utf-8-sig")
+
+def find_first(candidates):
+    for name in candidates:
+        p = BASE_DIR / name
+        if p.exists():
+            return str(p)
+    return None
+
+f_perc = find_first(["Ind_%.csv", "porcentaje.csv"])
+f_num  = find_first(["Ind_n.csv", "Numericos.csv"])
+f_tipo = find_first(["tipo_indicadores.csv"])
+
+missing = []
+if not f_perc: missing.append("Ind_%.csv o porcentaje.csv")
+if not f_num:  missing.append("Ind_n.csv o Numericos.csv")
+if not f_tipo: missing.append("tipo_indicadores.csv")
 if missing:
     for f in missing:
         st.error(f"Falta el archivo: {f}")
     st.stop()
 
-# Carga robusta (autodetecta separador y BOM)
-def load_csv(path):
-    return pd.read_csv(path, sep=None, engine="python", encoding="utf-8-sig")
-
-df_perc = load_csv("Ind_%.csv")
-df_num  = load_csv("Ind_n.csv")
-tipo_df = load_csv("tipo_indicadores.csv")
+df_perc = load_csv(f_perc)
+df_num  = load_csv(f_num)
+tipo_df = load_csv(f_tipo)
 
 # Meses
 meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre']
