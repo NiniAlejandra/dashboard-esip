@@ -1,0 +1,18 @@
+# Archivos Excel
+*.xlsx
+*.xls
+
+# Archivos de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Configuración de VS Code (opcional, puedes mantenerlo si quieres)
+# .vscode/
+
+# Archivos temporales
+*.tmp
+*.bak
+*.swp
