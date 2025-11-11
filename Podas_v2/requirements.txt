@@ -1,0 +1,9 @@
+HEAD
+streamlit>=1.45.0
+pandas>=2.2.3
+plotly>=5.18.0
+numpy>=1.24.0
+folium>=0.14.0
+streamlit-folium>=0.15.0
+plotly>=5.15.0
+0fcae012914a76da0ff5982b9fcbf88c4a4acd6
